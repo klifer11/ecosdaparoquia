@@ -1,0 +1,969 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ecos da Paróquia</title>
+<meta name="description" content="As quatro edições do jornal Ecos da Paróquia, informativo do Programa UGA da Rádio Intervalo, em um livro animado.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Alfa+Slab+One&family=Comic+Neue:wght@400;700&family=Special+Elite&display=swap">
+<style>
+/* Paleta: mesa de madeira escura, papel de xerox, tinta preta, caneta Bic azul, marca-texto amarelo, carimbo vermelho */
+:root{
+  color-scheme: dark;
+  --desk:#231e1a;
+  --desk-2:#2f2822;
+  --paper:#f2eee3;
+  --paper-edge:#d9d2c0;
+  --ink:#1a191d;
+  --bic:#26388a;
+  --marker:#f3df4a;
+  --stamp:#b3261e;
+  --ui:#e8e1d2;
+  --ui-dim:#a79f90;
+  --display:"Anton","Impact","Arial Narrow Bold",sans-serif;
+  --slab:"Alfa Slab One","Rockwell Extra Bold","Georgia",serif;
+  --comic:"Comic Neue","Comic Sans MS","Chalkboard SE",cursive;
+  --type:"Special Elite","Courier New",monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{
+  margin:0;background:var(--desk);color:var(--ui);
+  font-family:var(--comic);overflow:hidden;
+  background-image:
+    radial-gradient(ellipse at 50% 40%, rgba(255,220,170,.10), transparent 60%),
+    repeating-linear-gradient(92deg, rgba(255,255,255,.018) 0 3px, transparent 3px 11px),
+    linear-gradient(var(--desk-2),var(--desk));
+}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--marker);outline-offset:3px}
+
+/* ---------- palco ---------- */
+.stage{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:env(safe-area-inset-top,0px) 16px env(safe-area-inset-bottom,0px);}
+.viewport{position:relative;flex:1;width:100%;display:flex;align-items:center;justify-content:center;min-height:0}
+.scaler{position:absolute;left:50%;top:50%;transform-origin:0 0}
+.book{position:relative;width:1000px;height:707px;transition:transform .9s cubic-bezier(.3,.1,.2,1)}
+.book.single{width:500px}
+.book.single .leaf{left:0}
+.clip{position:absolute;inset:0;overflow:visible;perspective:2600px}
+.book.single .clip{overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.55)}
+
+.leaf{position:absolute;top:0;left:500px;width:500px;height:707px;transform-style:preserve-3d;
+  transform-origin:0 50%;transition:transform .9s cubic-bezier(.35,.05,.2,1);}
+.leaf.flipped{transform:rotateY(-180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;background:var(--paper)}
+.face.back{transform:rotateY(180deg)}
+.face::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:40}
+.face.front::after{background:linear-gradient(90deg,rgba(0,0,0,.20),rgba(0,0,0,0) 7%,rgba(0,0,0,0) 94%,rgba(0,0,0,.06))}
+.face.back::after{background:linear-gradient(270deg,rgba(0,0,0,.20),rgba(0,0,0,0) 7%,rgba(0,0,0,0) 94%,rgba(0,0,0,.06))}
+.book:not(.single) .face{box-shadow:0 14px 26px rgba(0,0,0,.4)}
+.book:not(.single) .face{overflow:hidden}
+.leaf.turning .face::after{animation:shade .9s ease}
+@keyframes shade{50%{background-color:rgba(0,0,0,.18)}}
+.blank{width:100%;height:100%;background:var(--paper)}
+
+/* ---------- página ---------- */
+.page{position:relative;width:500px;height:707px;padding:26px 30px 34px;color:var(--ink);
+  background-color:var(--paper);background-image:var(--grain),radial-gradient(ellipse at 50% 45%,transparent 55%,rgba(120,100,60,.12));
+  display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.page .folio{position:absolute;bottom:12px;left:0;right:0;text-align:center;font:12px/1 var(--type);color:#6d675b;letter-spacing:.08em}
+.page img{display:block;max-width:none}
+.mast{width:100%;mix-blend-mode:multiply}
+.mast-wrap{position:relative}
+.mast-wrap img{animation:inkin 1.2s ease both}
+.live .mast-wrap img{animation:inkin 1.2s ease both}
+@keyframes inkin{from{filter:blur(2px) contrast(.4);opacity:.2}to{filter:none;opacity:1}}
+
+.h-slab{font:26.4px/1.08 var(--slab);text-align:center;text-transform:uppercase;letter-spacing:.02em;text-wrap:balance;
+  text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:4px;margin:0}
+.h-imp{font:25.2px/1.05 var(--display);text-align:center;text-transform:uppercase;letter-spacing:.02em;margin:0;text-wrap:balance}
+.h-imp.u{text-decoration:underline;text-underline-offset:3px}
+.h-it{font:italic 700 19.2px/1.2 var(--comic);text-align:center;text-decoration:underline;margin:0;text-transform:uppercase}
+.txt{font:700 16.1px/1.34 var(--comic);margin:0;text-transform:uppercase;text-align:center}
+.txt.l{text-align:left}
+.txt.j{text-align:justify;text-transform:none;font-family:var(--slab);font-weight:400;font-size:15.1px;line-height:1.38;letter-spacing:.01em}
+.txt.it{text-transform:none;font-style:italic;font-weight:400;text-align:left}
+.txt.sm{font-size:14.4px}
+.u{text-decoration:underline}
+.sig{font:700 16.8px var(--comic);text-align:center;margin:2px 0 0}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.stack{display:flex;flex-direction:column;gap:8px}
+.item{font:700 16.3px/1.3 var(--comic);text-transform:uppercase;margin:0;text-align:center}
+.item b{text-decoration:underline}
+.banner{background:#e9e3cf;padding:4px 8px;font:16.8px/1.2 var(--slab);text-transform:uppercase;text-align:center;
+  box-shadow:1px 1px 0 rgba(0,0,0,.25);transform:rotate(-.6deg)}
+.cutout{background:#fbf9f3;padding:6px 8px;box-shadow:1px 2px 0 rgba(0,0,0,.18);transform:rotate(var(--r,-.5deg))}
+.boxed{border:2px solid var(--ink);padding:8px}
+
+/* texto sendo lido: marca-texto */
+[data-block]{transition:background-size .7s ease;background-image:linear-gradient(transparent 12%,var(--marker) 12%,var(--marker) 88%,transparent 88%);
+  background-repeat:no-repeat;background-size:0% 100%;background-position:0 0;border-radius:2px}
+[data-block].reading{background-size:100% 100%}
+
+/* ---------- cena e personagens ---------- */
+.scene{position:relative;flex:none}
+.char{position:absolute;margin:0;cursor:pointer;transform-origin:50% 100%;--dur:1.6s}
+.char img{width:100%;height:auto;mix-blend-mode:multiply;pointer-events:none;user-select:none}
+.char:hover{filter:drop-shadow(0 0 0 transparent)}
+.char:focus-visible{outline-offset:2px}
+.char.photo img{filter:contrast(1.05)}
+.char .hint{position:absolute;right:-4px;top:-4px;width:20px;height:20px;border-radius:50%;background:var(--stamp);color:#fff;
+  font:11px/20px var(--type);text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.4);opacity:0;transition:opacity .3s;z-index:6}
+.live .char .hint{opacity:.9}
+.char.talking .hint{background:var(--bic)}
+.jaw,.mouth{position:absolute;pointer-events:none}
+.mouth{background:#0d0c0c;opacity:0;border-radius:0 0 40% 40%}
+.jaw{background-repeat:no-repeat;transition:transform .08s}
+.char.talking .jaw{animation:jaw .26s ease-in-out infinite alternate}
+.char.talking .mouth{opacity:.9}
+@keyframes jaw{from{transform:translateY(0)}to{transform:translateY(var(--drop,9%))}}
+
+/* movimentos ociosos (só na página visível) */
+.a-gallop{animation:gallop .55s ease-in-out infinite alternate}
+@keyframes gallop{from{transform:translateY(0) rotate(-1.2deg)}to{transform:translateY(-7px) rotate(1.4deg)}}
+.a-buck{animation:buck 1.1s ease-in-out infinite;transform-origin:55% 90%}
+@keyframes buck{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(6deg) translateY(-6px)}}
+.a-sway{animation:sway 2.6s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+.a-hop{animation:hop .8s cubic-bezier(.3,0,.4,1) infinite}
+@keyframes hop{0%,100%{transform:translateY(0) scaleY(1)}45%{transform:translateY(-10px) scaleY(1.03)}80%{transform:translateY(0) scaleY(.94)}}
+.a-rage{animation:rage .18s linear infinite}
+@keyframes rage{0%{transform:translate(0,0) rotate(0)}25%{transform:translate(-2px,1px) rotate(-1.5deg)}50%{transform:translate(1px,-1px) rotate(1deg)}75%{transform:translate(2px,1px) rotate(-.5deg)}}
+.a-breathe{animation:breathe 3.2s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.025) rotate(-.8deg)}}
+.a-flex{animation:flex 1.4s ease-in-out infinite}
+@keyframes flex{0%,100%{transform:scale(1,1)}40%{transform:scale(1.07,.97)}55%{transform:scale(1.05,.99)}}
+.a-pedal{animation:pedal 2.4s ease-in-out infinite}
+@keyframes pedal{0%,100%{transform:translateX(-10px) rotate(-1deg)}50%{transform:translateX(10px) rotate(1deg)}}
+.a-wave{animation:waveb 1.6s ease-in-out infinite;transform-origin:30% 100%}
+@keyframes waveb{0%,100%{transform:rotate(-1.5deg)}50%{transform:rotate(2.5deg) translateY(-3px)}}
+.a-bob{animation:bob 2.2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.a-point{animation:point 1s ease-in-out infinite;transform-origin:40% 100%}
+@keyframes point{0%,100%{transform:rotate(0)}50%{transform:rotate(-4deg) translateX(-3px)}}
+.char.talking{animation-name:talk;animation-duration:.32s;animation-iteration-count:infinite;animation-direction:alternate;animation-timing-function:ease-in-out}
+.char.photo.talking{animation:none}
+@keyframes talk{from{transform:translateY(0) rotate(-1.2deg) scaleY(1)}to{transform:translateY(-4px) rotate(1.2deg) scaleY(1.02)}}
+.page:not(.live) .char,.page:not(.live) .char *,.page:not(.live) .fx{animation-play-state:paused!important}
+
+/* efeitos */
+.fx{position:absolute;pointer-events:none;font-family:var(--comic);font-weight:700;color:var(--bic)}
+.note{font-size:22px;animation:note 2.4s ease-in infinite;opacity:0}
+@keyframes note{0%{opacity:0;transform:translate(0,0) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translate(26px,-60px) rotate(25deg)}}
+.zap{font-size:18px;animation:zap .5s steps(2) infinite}
+@keyframes zap{50%{opacity:0}}
+.orbit{position:absolute;border:1.5px dashed rgba(38,56,138,.0);border-radius:50%}
+.planet{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--bic);top:-4.5px;left:calc(50% - 4.5px)}
+.spin{animation:spin linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.qmark{font:700 30px var(--comic);color:var(--ink);animation:bob 1.2s ease-in-out infinite}
+.waves span{position:absolute;border:3px solid var(--stamp);border-color:var(--stamp) transparent transparent transparent;border-radius:50%;
+  animation:wave 2s ease-out infinite;opacity:0}
+@keyframes wave{0%{opacity:.9;transform:scale(.3)}100%{opacity:0;transform:scale(1.4)}}
+
+/* balão flutuante */
+.bubble{position:absolute;z-index:30;width:250px;background:#fff;color:var(--ink);border:2.5px solid var(--ink);border-radius:18px;
+  padding:10px 13px;font:700 14px/1.3 var(--comic);box-shadow:3px 3px 0 rgba(0,0,0,.25);transform-origin:50% 100%;
+  animation:pop .28s cubic-bezier(.3,1.6,.5,1) both;pointer-events:none}
+.bubble::after,.bubble::before{content:"";position:absolute;left:var(--tail,50%);width:0;height:0;border:12px solid transparent}
+.bubble.up::before{bottom:-26px;border-top:14px solid var(--ink);margin-left:-12px}
+.bubble.up::after{bottom:-20px;border-top:12px solid #fff;margin-left:-10px;border-width:10px}
+.bubble.down{transform-origin:50% 0}
+.bubble.down::before{top:-26px;border-bottom:14px solid var(--ink);margin-left:-12px}
+.bubble.down::after{top:-20px;border-bottom:12px solid #fff;margin-left:-10px;border-width:10px}
+.bubble .who{display:block;font:11px/1 var(--type);color:var(--stamp);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.bubble .caret{display:inline-block;width:7px;height:13px;background:var(--ink);vertical-align:-2px;animation:zap .7s steps(2) infinite}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* balões fixos do original (Ecos 02) */
+.sbub{position:absolute;background:#fff;border:2px solid var(--ink);border-radius:50% / 45%;padding:6px 10px;
+  font:700 10.5px/1.15 "Special Elite",var(--comic);font-family:var(--comic);text-align:center;text-transform:uppercase;z-index:5}
+
+/* carimbo / fita */
+.stamp{font:22px/1 var(--display);color:var(--stamp);border:3px solid var(--stamp);padding:4px 10px;letter-spacing:.06em;
+  transform:rotate(-8deg);display:inline-block;mix-blend-mode:multiply;opacity:.9}
+.tape{position:absolute;width:80px;height:22px;background:rgba(235,225,180,.7);box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.letter{background:#fffdf6;border:1px solid #cfc7b2;padding:12px 12px 10px;box-shadow:2px 3px 0 rgba(0,0,0,.14);
+  background-image:repeating-linear-gradient(transparent 0 19px,rgba(38,56,138,.13) 19px 20px)}
+.greek{font-family:"Times New Roman",serif;letter-spacing:.02em}
+.censor{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-10deg);font-size:26px;white-space:nowrap}
+
+/* capa, sumário, divisórias */
+.cover{justify-content:flex-start;align-items:center;text-align:center}
+.cover .kicker{font:15px/1.3 var(--type);letter-spacing:.14em;text-transform:uppercase;color:#4b463d}
+.open-btn{margin-top:auto;align-self:center;background:var(--ink);color:var(--paper);border:0;padding:12px 22px;font:20px/1 var(--display);
+  letter-spacing:.08em;cursor:pointer;box-shadow:3px 3px 0 var(--stamp);text-transform:uppercase}
+.open-btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--stamp)}
+.toc h2{font:44px/1 var(--display);margin:6px 0 4px;text-transform:uppercase;letter-spacing:.02em}
+.toc ol{list-style:none;padding:0;margin:8px 0 0;display:flex;flex-direction:column;gap:6px}
+.toc li button{all:unset;cursor:pointer;display:grid;grid-template-columns:62px 1fr auto;gap:12px;align-items:baseline;width:100%;
+  border-bottom:1.5px dashed #9b937f;padding:9px 2px}
+.toc li button:hover .t{text-decoration:underline}
+.toc .n{font:30px/1 var(--display)}
+.toc .t{font:700 15px/1.2 var(--comic);text-transform:uppercase}
+.toc .p{font:14px var(--type);font-variant-numeric:tabular-nums}
+.howto{font:14px/1.45 var(--type);color:#3a362f;border-top:2px solid var(--ink);padding-top:10px;margin-top:6px}
+.divider{align-items:center;justify-content:center;text-align:center;gap:14px}
+.divider .no{font:150px/0.85 var(--display);letter-spacing:-.02em}
+.divider .ed{font:16px var(--type);letter-spacing:.3em;text-transform:uppercase}
+.divider .ttl{font:700 17px/1.25 var(--comic);text-transform:uppercase;max-width:340px}
+.scanthumb{position:relative;width:170px;cursor:zoom-in;border:0;padding:0;background:none;transform:rotate(3deg);box-shadow:3px 5px 14px rgba(0,0,0,.3)}
+.scanthumb img{width:100%;display:block}
+.scanthumb .tape{top:-10px;left:45px;transform:rotate(-4deg)}
+.small-btn{background:none;border:1.5px solid var(--ink);padding:5px 10px;font:12px var(--type);cursor:pointer;color:var(--ink)}
+.small-btn:hover{background:var(--ink);color:var(--paper)}
+
+/* ---------- barra de controle ---------- */
+.bar{flex:none;display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;justify-content:center;padding:10px 0 14px;max-width:100%}
+.bar button{background:transparent;border:1.5px solid rgba(232,225,210,.35);color:var(--ui);border-radius:999px;padding:7px 13px;
+  font:13px/1 var(--type);cursor:pointer;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.bar button:hover{border-color:var(--ui)}
+.bar button[aria-pressed="true"]{background:var(--ui);color:var(--desk);border-color:var(--ui)}
+.bar button.round{width:40px;height:40px;padding:0;justify-content:center;font-size:18px}
+.bar button:disabled{opacity:.3;cursor:default}
+.bar .count{font:13px var(--type);color:var(--ui-dim);min-width:72px;text-align:center;font-variant-numeric:tabular-nums}
+.bar svg{width:15px;height:15px}
+.onair{display:inline-block;width:8px;height:8px;border-radius:50%;background:#555}
+.playing .onair{background:#e33;box-shadow:0 0 8px #e33;animation:zap 1s steps(2) infinite}
+
+/* ---------- original ---------- */
+.lightbox{position:fixed;inset:0;background:rgba(15,12,10,.94);z-index:100;display:flex;flex-direction:column;align-items:center;
+  padding:calc(env(safe-area-inset-top,0px) + 12px) 16px calc(env(safe-area-inset-bottom,0px) + 12px);gap:10px}
+.lightbox .scroll{flex:1;overflow:auto;width:100%;display:flex;justify-content:center;align-items:flex-start}
+.lightbox img{max-width:min(100%,900px);height:auto;cursor:zoom-in;box-shadow:0 10px 40px #000}
+.lightbox.zoom img{max-width:none;width:1400px;cursor:zoom-out}
+.lightbox .top{display:flex;gap:10px;align-items:center;justify-content:space-between;width:min(100%,900px);font:14px var(--type)}
+.lightbox button{background:var(--ui);color:var(--desk);border:0;padding:8px 14px;font:14px var(--type);cursor:pointer}
+
+.hotzone{position:absolute;top:0;bottom:0;width:46px;z-index:20;cursor:pointer;background:none;border:0}
+.hotzone.r{right:0;background:linear-gradient(270deg,rgba(0,0,0,.06),transparent)}
+.hotzone.l{left:0;background:linear-gradient(90deg,rgba(0,0,0,.06),transparent)}
+.hotzone:hover.r{background:linear-gradient(225deg,rgba(0,0,0,.18),transparent 45%)}
+.hotzone:hover.l{background:linear-gradient(135deg,rgba(0,0,0,.18),transparent 45%)}
+
+@media (prefers-reduced-motion: reduce){
+  .char,.fx,.char *{animation:none!important}
+  .leaf,.book{transition-duration:.25s}
+}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="viewport" id="viewport">
+    <div class="scaler" id="scaler"><div class="book" id="book"><div class="clip" id="clip"></div></div></div>
+  </div>
+  <nav class="bar" id="bar" aria-label="Controles do livro">
+    <button class="round" id="prev" aria-label="Página anterior">&#8249;</button>
+    <span class="count" id="count" aria-live="polite">capa</span>
+    <button class="round" id="next" aria-label="Próxima página">&#8250;</button>
+    <button id="btn-play" aria-pressed="false" title="Tocar a cena desta página"><span class="onair"></span>Tocar cena</button>
+    <button id="btn-voice" aria-pressed="true" title="Liga ou desliga as vozes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M19 5.5a9 9 0 0 1 0 13"/></svg>Vozes</button>
+    <button id="btn-auto" aria-pressed="true" title="Os personagens falam sozinhos quando a página abre">Narração automática</button>
+    <button id="btn-film" aria-pressed="false" title="Lê o livro inteiro sozinho, virando as páginas">Modo filme</button>
+    <button id="btn-orig" title="Ver o jornal original escaneado">Ver original</button>
+  </nav>
+</div>
+
+<div class="lightbox" id="lightbox" hidden>
+  <div class="top"><span id="lb-title">Original</span><button id="lb-close">Fechar</button></div>
+  <div class="scroll"><img id="lb-img" alt="Jornal original escaneado"></div>
+</div>
+
+<!-- ================= PÁGINAS ================= -->
+<div id="pages" hidden>
+
+<!-- 0 CAPA -->
+<section class="page cover" data-ed="0">
+  <div class="mast-wrap"><img class="mast" src="assets/img/m3.jpg" alt="Ecos da Paróquia — Informativo do Programa UGA da Rádio Intervalo"></div>
+  <p class="kicker">Edições 01 a 04 &middot; livro animado</p>
+  <div class="scene" style="width:440px;height:360px">
+    <div class="fx waves" style="left:190px;top:10px;width:60px;height:60px">
+      <span style="inset:0"></span><span style="inset:0;animation-delay:.6s"></span><span style="inset:0;animation-delay:1.2s"></span>
+    </div>
+    <figure class="char a-gallop" id="c-cover-carlos" data-name="Carlos" data-voice="carlos" style="left:-6px;top:120px;width:250px"><img src="assets/img/carlos.jpg" alt="Carlos tocando viola montado no cavalo"></figure>
+    <div class="fx note" style="left:150px;top:120px">&#9834;</div>
+    <div class="fx note" style="left:175px;top:110px;animation-delay:.8s">&#9835;</div>
+    <figure class="char a-sway" id="c-cover-profeta" data-name="O Profeta" data-voice="profeta" style="left:250px;top:60px;width:190px"><img src="assets/img/profeta.jpg" alt="Galinha vestida de profeta com cajado"></figure>
+    <figure class="char a-hop" id="c-cover-elvis" data-name="Elvis" data-voice="elvis" style="left:215px;top:245px;width:62px"><img src="assets/img/elvis.jpg" alt="Elvis, o anão DJ"></figure>
+  </div>
+  <p class="txt" data-block="cover-hora" style="font-size:18px">Todos os sábados ,a partir das 9: 00 !!!!!!!!!!!!!!</p>
+  <button class="open-btn" data-go="1">Abrir o livro</button>
+</section>
+
+<!-- 1 SUMÁRIO -->
+<section class="page toc" data-ed="0">
+  <p class="kicker" style="font:16.8px var(--type);letter-spacing:.14em;margin:0;text-transform:uppercase">Rádio Intervalo &middot; Programa UGA</p>
+  <h2>Sumário</h2>
+  <ol>
+    <li><button data-go="2"><span class="n">01</span><span class="t">Os grandes vultos da Ràdio Intervalo</span><span class="p">p. 3</span></button></li>
+    <li><button data-go="7"><span class="n">02</span><span class="t">Meditação transcendental, energias positivas e salgadinhos em geral</span><span class="p">p. 8</span></button></li>
+    <li><button data-go="12"><span class="n">03</span><span class="t">Opiniões de pessoas inúteis</span><span class="p">p. 13</span></button></li>
+    <li><button data-go="17"><span class="n">04</span><span class="t">Proclamas do Carijó e os discípulos de Omar Galinha</span><span class="p">p. 18</span></button></li>
+  </ol>
+  <p class="howto">Os textos são os originais dos jornais. Clique em um personagem para ouvir o que ele tem a dizer. Vire as páginas pelas setas, pelas bordas das folhas ou arrastando o dedo.</p>
+  <div class="scene" style="height:160px;margin-top:auto">
+    <figure class="char a-bob" id="c-toc-galinha" data-name="Galinha" data-voice="rafael" style="left:150px;top:0;width:140px"><img src="assets/img/galinha.jpg" alt="O locutor Galinha"></figure>
+  </div>
+  <div class="folio">2</div>
+</section>
+
+<!-- 2 DIVISÓRIA 01 -->
+<section class="page divider" data-ed="1">
+  <span class="ed">Ecos da Paróquia</span>
+  <span class="no">Nº 01</span>
+  <span class="ttl">Os grandes vultos da Ràdio Intervalo</span>
+  <button class="scanthumb" data-orig="1" aria-label="Ver o jornal original número 1"><span class="tape"></span><img src="assets/scans/ecos_01.jpg" alt=""></button>
+  <button class="small-btn" data-orig="1">Ver jornal original</button>
+  <div class="folio">3</div>
+</section>
+
+<!-- 3 ED01 A -->
+<section class="page" data-ed="1">
+  <div class="mast-wrap"><img class="mast" src="assets/img/m1.jpg" alt="Ecos da Paróquia — Informativo do Programa UGA da Rádio Intervalo. Editores: Galinha e Leandro Valentim"></div>
+  <h2 class="h-slab">Os grandes vultos<br>da Ràdio Intervalo</h2>
+  <p class="txt" data-block="e1-intro">Nesta edição começaremos a apresentar todos os ‘elementos’ que participam da Ràdio Intervalo . Para abrir com chave de ouro, vamos conhecer os ‘chefes’ e os locutores do programa UGA.</p>
+  <div class="scene" style="height:250px">
+    <figure class="char a-hop" id="c-elvis" data-name="Elvis" data-voice="elvis" style="left:6px;top:95px;width:92px"><img src="assets/img/elvis.jpg" alt="1 — Elvis puxando o cavalo"></figure>
+    <figure class="char a-gallop" id="c-carlos" data-name="Carlos" data-voice="carlos" style="left:92px;top:0;width:340px"><img src="assets/img/carlos.jpg" alt="2 — Carlos tocando viola no cavalo"></figure>
+    <div class="fx note" style="left:370px;top:10px">&#9834;</div>
+    <div class="fx note" style="left:392px;top:30px;animation-delay:1.1s">&#9835;</div>
+  </div>
+  <p class="item" data-block="e1-1">-1- <b>Elvis</b>- é o gnomo da sorte do programa. Sua baixa estatura é compensada pelo seu descomunal talento como DJ.</p>
+  <p class="item" data-block="e1-2">-2-<b>Carlos</b>- garoto propaganda da Herbalife. Locutor e violeiro oficial do programa.</p>
+  <div class="folio">4</div>
+</section>
+
+<!-- 4 ED01 B -->
+<section class="page" data-ed="1">
+  <div class="scene" style="height:370px;margin-top:6px">
+    <figure class="char a-buck" id="c-rafaelpaulo" data-name="Rafael e Paulo" data-voice="rafael" style="left:14px;top:4px;width:450px"><img src="assets/img/rafael_paulo.jpg" alt="3 — Rafael, o Galinha, e 5 — Paulo, montados em um cavalo que corcoveia"></figure>
+    <div class="fx zap" style="left:30px;top:120px">((</div>
+    <div class="fx zap" style="left:440px;top:150px;animation-delay:.25s">))</div>
+  </div>
+  <p class="item" data-block="e1-3">-3-<b>Rafael</b>- conhecido também pelo vulgo de Galinha, é o sex simbol da Rádio Intervalo.</p>
+  <p class="item" data-block="e1-45">-4-<b>Anderson</b> e -5-<b>Paulo</b>- são os indivíduos que ocupam a posição mais alta na hierarquia dos arcanos maiores da Rádio Intervalo . São os nossos queridos e estimados chefes.</p>
+  <div class="folio">5</div>
+</section>
+
+<!-- 5 ED01 C -->
+<section class="page" data-ed="1">
+  <p class="item" data-block="e1-6" style="margin-top:6px">-6- <b>André Pila</b>- é um locutor internacional. Paraguaio naturalizado brasileiro,com passagem pela Rádio Guarani de Ciudad del Este.</p>
+  <p class="item" data-block="e1-7">-7- <b>Guará, o barbaro</b>- além de comentarista esportivo é o diretor de ciências ocultas do programa.</p>
+  <div class="scene" style="height:420px;margin-top:4px">
+    <figure class="char a-sway" id="c-andersonandre" data-name="Anderson e André Pila" data-voice="anderson" style="left:0;top:20px;width:300px"><img src="assets/img/anderson_andre.jpg" alt="4 — Anderson e 6 — André Pila montados em um cavalo exausto"></figure>
+    <figure class="char a-rage" id="c-guara" data-name="Guará, o bárbaro" data-voice="guara" style="left:270px;top:170px;width:180px"><img src="assets/img/guara.jpg" alt="7 — Guará, o bárbaro, furioso"></figure>
+    <div class="fx zap" style="left:300px;top:150px;font-size:28.8px">!!</div>
+  </div>
+  <div class="folio">6</div>
+</section>
+
+<!-- 6 ED01 D -->
+<section class="page" data-ed="1">
+  <div class="letter" style="transform:rotate(-1deg)">
+    <h3 class="h-imp u" style="font-size:21.6px">O ostrogodo aloprado da semana</h3>
+    <p class="txt" data-block="e1-clovis" style="font-weight:400;font-size:16.8px">Sugiro que vocês sejam mais homens! Porque os <span class="greek">ςΙΑΔΟΣ</span> que ficam falando no sábado são todos <span class="greek">ΒΙΧΗΑΣ</span>. Sugiro que estes seres sejam executados na arena. Sugiro também que seja cortada a língua daquele cara que imita o Cadeia. -Gostaria de tirar uma foto erótica com o Galinha.</p>
+    <p class="sig">CLÓVIS</p>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 150px;gap:12px;align-items:end">
+    <p class="txt" data-block="e1-resp" style="font-family:'Times New Roman',Georgia,serif;font-weight:400;font-size:16.8px;line-height:1.3">Caríssimo colega, estamos comovidos com tantos elogios!!!! Sobre a foto erótica com o Galinha,pode vir buscar a sua aqui na rádio. Ela vem autografada e mostra o Galinha com sua sunga asa delta tigrada!! Por falar no assunto, existe um movimento gigantesco de mulheres atrás da tão desejada foto. O galináceo promete atender todos os pedidos na medida do possível!!!</p>
+    <div class="scene" style="height:170px">
+      <figure class="char a-bob" id="c-galinha1" data-name="Galinha" data-voice="rafael" style="left:0;top:10px;width:150px"><img src="assets/img/galinha.jpg" alt="O locutor Galinha"></figure>
+      <figure class="char a-bob" id="c-carta" data-name="Clóvis (carta)" data-voice="clovis" style="left:-2000px;top:0;width:1px" aria-hidden="true"></figure>
+    </div>
+  </div>
+  <div class="folio">7</div>
+</section>
+
+<!-- 7 DIVISÓRIA 02 -->
+<section class="page divider" data-ed="2">
+  <span class="ed">Ecos da Paróquia</span>
+  <span class="no">Nº 02</span>
+  <span class="ttl">Programa Uga Alegria &middot; Espetacular concurso</span>
+  <button class="scanthumb" data-orig="2" aria-label="Ver o jornal original número 2"><span class="tape"></span><img src="assets/scans/ecos_02.jpg" alt=""></button>
+  <button class="small-btn" data-orig="2">Ver jornal original</button>
+  <div class="folio">8</div>
+</section>
+
+<!-- 8 ED02 A -->
+<section class="page" data-ed="2">
+  <div class="mast-wrap"><img class="mast" src="assets/img/m2.jpg" alt="Ecos da Paróquia"></div>
+  <p class="banner" data-block="e2-banner">Meditação transcendental, energias positivas, transmutações, bio-dança, paranormalidade e salgadinhos em geral.</p>
+  <div class="scene" style="height:230px;margin-top:8px">
+    <figure class="char photo a-breathe" id="c-velho" data-name="O ancião" data-voice="velho" data-jaw="24,52,80,82" style="left:150px;top:0;width:180px"><img src="assets/img/velho.jpg" alt="Foto recortada de um senhor idoso de barba"></figure>
+  </div>
+  <p class="txt j" data-block="e2-intro">Caríssimos colegas, estamos começando a partir desta edição uma série de informativos inúteis, sobre o programa Uga Alegria. Este abominável programa tem como principais atrações os noticiários policiais e esportivos, com os destaques da semana. Contamos também com os noticiários esotéricos, programa de cartas dos alunos, fora as músicas mais ridículas de toda programação. Mas na verdade, o ponto forte do programa são os locutores, que sem dúvida são os melhores e mais bonitos da região.</p>
+  <div class="folio">9</div>
+</section>
+
+<!-- 9 ED02 B -->
+<section class="page" data-ed="2">
+  <h3 class="h-it" style="text-align:left;text-transform:none">Aviso</h3>
+  <p class="txt j" data-block="e2-aviso" style="font-size:18px;line-height:1.45">Avisamos aos estudantes que o programa Uga Alegria está aberto para qualquer recado que vocês quiserem. Podem mandar cartas de amor ( para os locutores do programa, de preferência ), pedidos de música, recados, anúncios, orações de agradecimentos, etc.</p>
+  <div class="scene" style="height:300px;margin-top:10px">
+    <figure class="char photo a-point" id="c-capitao" data-name="O capitão" data-voice="capitao" data-jaw="50,43,86,63" style="left:110px;top:0;width:250px"><img src="assets/img/capitao.jpg" alt="Foto recortada de um capitão barbudo apontando"></figure>
+  </div>
+  <div class="folio">10</div>
+</section>
+
+<!-- 10 ED02 C -->
+<section class="page" data-ed="2">
+  <h3 class="h-it">Espetacular concurso<br>Passe um dia com os locutores do programa Uga Alegria</h3>
+  <p class="txt it" data-block="e2-concurso" style="font-size:16.2px">Todas as cartas mandadas para a rádio concorrerão à um espetacular dia com os locutores mais eróticos da RÁDIO INTERVALO.</p>
+  <p class="txt it sm" data-block="e2-regul" style="font-style:normal;font-family:'Times New Roman',Georgia,serif">Regulamento: só terão validade as cartas mandadas por mulheres.</p>
+  <div style="display:grid;grid-template-columns:1fr 128px;gap:10px;align-items:start">
+    <div>
+      <p class="u" style="font:italic 700 15.6px var(--comic);margin:0 0 4px">PROGRAMAÇÃO:</p>
+      <ul class="sched" data-block="e2-prog" style="list-style:none;margin:0;padding:0;font:15.6px/1.5 var(--comic)">
+        <li>06:30- Delicioso nescau com bolachas maizena</li>
+        <li>09:00- Instrutivo passeio nas dependências da Rádio.</li>
+        <li>11:30- incrível visita pelo Passeio Público.</li>
+        <li>12:30- Saborosa refeição no Bar do Chico Mula.</li>
+        <li>13:30- Revigorante descanso na casa de algum dos locutores.</li>
+        <li>14:30- Descontraído programa Silvio Santos.</li>
+        <li>16:00- Grande espetáculo esportivo: Vila Zumbi x Combate Barreirinha.</li>
+        <li>19:00- Animado bailão de vanerão na Sociedade Operário de Tamandaré City.</li>
+        <li>23:00- Alegre despedida.</li>
+      </ul>
+    </div>
+    <div class="scene" style="height:150px;margin-top:40px">
+      <figure class="char photo a-bob" id="c-sorriso" data-name="O sorridente" data-voice="sorriso" data-jaw="24,66,86,92" style="left:0;top:0;width:128px"><img src="assets/img/sorriso.jpg" alt="Foto recortada de um homem sorrindo"></figure>
+    </div>
+  </div>
+  <div class="folio">11</div>
+</section>
+
+<!-- 11 ED02 D -->
+<section class="page" data-ed="2">
+  <div style="display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:center">
+    <div class="scene" style="height:150px">
+      <figure class="char photo a-breathe" id="c-chapeu" data-name="O homem do chapéu" data-voice="chapeu" data-jaw="56,54,92,72" style="left:0;top:0;width:150px"><img src="assets/img/chapeu.jpg" alt="Foto recortada de um homem de chapéu de palha"></figure>
+    </div>
+    <div>
+      <p class="txt it" style="font-weight:400">Perguntar não ofende...</p>
+      <p class="txt it" data-block="e2-gremio" style="font-weight:400">Quando que o Grêmio vai organizar uma seleção para jogar contra o Saudoso, Heróico, Bravo e Retumbante time do Poty Esporte Clube?</p>
+    </div>
+  </div>
+  <div class="scene" style="height:390px;margin-top:14px">
+    <figure class="char a-point" id="c-palito" data-name="O palito" data-voice="palito" style="left:-6px;top:118px;width:118px"><img src="assets/img/palito1.jpg" alt="Boneco de palito apontando"></figure>
+    <figure class="char photo" id="c-brigoes" data-name="Os brigões" data-voice="brigao" data-jaw="33,50,50,62" style="left:88px;top:0;width:360px"><img src="assets/img/brigoes.jpg" alt="Foto de dois homens brigando e um boneco de palito com um ponto de interrogação"></figure>
+    <p class="sbub" data-block="e2-b1" style="left:166px;top:9px;width:152px">Mas quando eu posso ouvir este programa asqueroso ?</p>
+    <p class="sbub" data-block="e2-b2" style="left:257px;top:73px;width:150px">Todos os sábados ,a partir das 9: 00 !!!!!!!!!!!!!!</p>
+    <figure class="char" id="c-palito2" data-name="O palito" data-voice="palito2" style="left:370px;top:10px;width:78px;height:140px" aria-hidden="true"></figure>
+  </div>
+  <div class="folio">12</div>
+</section>
+
+<!-- 12 DIVISÓRIA 03 -->
+<section class="page divider" data-ed="3">
+  <span class="ed">Ecos da Paróquia</span>
+  <span class="no">Nº 03</span>
+  <span class="ttl">Opiniões de pessoas inúteis &middot; Uma mensagem de outro mundo</span>
+  <button class="scanthumb" data-orig="3" aria-label="Ver o jornal original número 3"><span class="tape"></span><img src="assets/scans/ecos_03_a.jpg" alt=""></button>
+  <button class="small-btn" data-orig="3">Ver jornal original</button>
+  <div class="folio">13</div>
+</section>
+
+<!-- 13 ED03 A -->
+<section class="page" data-ed="3">
+  <div class="mast-wrap"><img class="mast" src="assets/img/m3.jpg" alt="Ecos da Paróquia — Informativo do Programa UGA da Rádio Intervalo"></div>
+  <h2 class="h-slab" style="font-size:22.8px">Opiniões de pessoas inúteis</h2>
+  <div style="display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:start">
+    <div class="stack">
+      <p class="txt sm" data-block="e3-dolle">``O programa UGA é muito interessante e me deixou mais ligado com a natureza ,porque todo o sábado encontro um bando de animais em extinção que me fazem rir e ao mesmo tempo chorar por causa das besteiras que eles falam.”</p>
+      <p class="sig" style="font-size:14.4px">ASS: DOLLÉ</p>
+      <p class="txt sm" data-block="e3-elvis">É uma honra termos este super jornal nesta instituição de ensino . ( Puxa saco !!! ) Apesar do Galinha papa ovo e do Guarani paiacã, o pajé da equipe UGA. E o Pilla é de raça, vira e não vira ele é do meio (????). O Carlos é o garoto propaganda do UGA e nosso drag queen oficial. Eu sou o anão DJ. Minha tarefa é fazer os defeitos especiais do programa.</p>
+      <p class="sig" style="font-size:14.4px">ASS: ELVIS</p>
+    </div>
+    <div class="scene" style="height:360px">
+      <figure class="char a-bob" id="c-dolle" data-name="Dollé" data-voice="dolle" style="left:-2000px;top:0;width:1px" aria-hidden="true"></figure>
+      <figure class="char a-hop" id="c-elvis3" data-name="Elvis" data-voice="elvis" style="left:14px;top:200px;width:92px"><img src="assets/img/elvis.jpg" alt="Elvis, o anão DJ"></figure>
+    </div>
+  </div>
+  <div class="folio">14</div>
+</section>
+
+<!-- 14 ED03 B -->
+<section class="page" data-ed="3">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start">
+    <div class="stack">
+      <div class="scene" style="height:118px">
+        <figure class="char a-bob" id="c-leitor" data-name="O leitor" data-voice="leitor" style="left:10px;top:0;width:150px"><img src="assets/img/leitor.jpg" alt="Desenho de um homem lendo um livro"></figure>
+      </div>
+      <h3 class="h-imp u" style="font-size:19.2px">Locutores do programa UGA estão preocupados com o assédio das alunas</h3>
+      <p class="txt sm" data-block="e3-assedio">Motivadas pelo último jornal Ecos da Paróquia as alunas do C.E.P estão proporcionando um movimento incrível de cartas e visitas na 'Radio Intervalo'.</p>
+      <p class="txt sm" data-block="e3-pila">`` Não consigo dormir mais com os vários telefonemas para minha residência” confessa desesperado o locutor Pila.</p>
+      <p class="txt sm" data-block="e3-galinha">Com certeza a pessoa que sofre mais com os assédios é o locutor Galinha,mas mesmo assim confessa: ``Elas alimentam o meu ego!!! Vou responder todas as cartas na medida do possível.”</p>
+    </div>
+    <div class="stack">
+      <div class="scene" style="height:200px">
+        <figure class="char a-sway" id="c-profeta" data-name="O Profeta" data-voice="profeta" style="left:10px;top:0;width:190px"><img src="assets/img/profeta.jpg" alt="Galinha vestida de profeta com cajado"></figure>
+      </div>
+      <p data-block="e3-urna" style="font:15.5px/1.2 var(--slab);text-align:center;text-transform:uppercase;margin:0;letter-spacing:.02em">Se você também quer deixar o seu recado no jornal Ecos da Paróquia, deposite sua carta nas urnas que estão na cantina e na rádio. Pode mandar anúncios , recados para outras pessoas ,ameaças de morte, orações...</p>
+    </div>
+  </div>
+  <div class="folio">15</div>
+</section>
+
+<!-- 15 ED03 C -->
+<section class="page" data-ed="3">
+  <h2 class="h-slab" style="font-size:24px">Uma mensagem<br>de outro mundo</h2>
+  <p class="txt sm" data-block="e3-bilhete" style="font-family:var(--display);font-weight:400;font-size:16.2px;letter-spacing:.02em">No último sábado recebemos um bilhete que nos deixou muito intrigados. Quando começamos a ler aquele bilhete logo achamos que seria a Mãe Dinán ou Nostradamus que teria escrito. Na verdade foi um aluno do C.E.P que se intitulava ``O Profeta”. Leia a seguir alguns trechos da tão enigmática carta.</p>
+  <div style="display:grid;grid-template-columns:1fr 170px;gap:10px;align-items:start">
+    <div class="stack">
+      <p class="txt sm" data-block="e3-guerra">``A terceira guerra mundial ocorrerá em 10 de setembro de 1999.O primeiro país a ser destruido será a França, por uma bomba nuclear.”</p>
+      <p class="txt sm" data-block="e3-fim">``Profetas recentes e astrólogos afirmam que o fim do mundo ocorrerá em 5 de maio do ano 2000 <span class="u">os sete planetas do sistema solar</span> se alinharão, um acontecimento extremamente raro.”</p>
+    </div>
+    <div class="scene" style="height:180px">
+      <figure class="char photo a-breathe" id="c-nostradamus" data-name="Nostradamus" data-voice="nostradamus" data-jaw="44,40,80,56" style="left:0;top:0;width:170px"><img src="assets/img/nostradamus.jpg" alt="Gravura de Nostradamus"></figure>
+    </div>
+  </div>
+  <div class="scene" style="height:212px">
+    <img src="assets/img/sistema.jpg" alt="Parte do Sistema Solar: Sol, Mercúrio, Vênus, Terra, Marte, Asteróides e Júpiter" style="position:absolute;left:70px;top:0;width:300px;mix-blend-mode:multiply">
+    <div class="fx spin" style="left:113px;top:33px;width:100px;height:100px;animation-duration:6s"><div class="planet"></div></div>
+    <div class="fx spin" style="left:88px;top:12px;width:150px;height:150px;animation-duration:11s;animation-direction:reverse"><div class="planet" style="background:var(--stamp)"></div></div>
+    <p style="position:absolute;left:70px;top:194px;margin:0;font:14.4px 'Times New Roman',serif">Parte do Sistema Solar</p>
+  </div>
+  <div class="folio">16</div>
+</section>
+
+<!-- 16 ED03 D -->
+<section class="page" data-ed="3">
+  <div class="cutout" style="--r:.6deg">
+    <p class="u" style="font:19.2px/1.15 var(--display);text-align:center;margin:0 0 4px;text-transform:uppercase">Obs: o Ecos da Paróquia também é cultura!!!!!!!!</p>
+    <p class="txt" data-block="e3-obs" style="font-family:var(--display);font-weight:400;font-size:17.4px;letter-spacing:.02em;line-height:1.3">Ao contrário de que diz o nosso coleguinha, o número real de planetas que fazem parte do nosso sistema solar é 9!!!fora os 32 satélites e 1 estrela chamada Sol. Apreciamos muito a sua carta e declaramos você como vidente oficial do programa -Seria possível você mandar os números da mega sena da próxima semana???? Contando antecipadamente com sua [...]</p>
+  </div>
+  <div class="scene" style="height:300px;margin-top:6px">
+    <figure class="char a-sway" id="c-profeta2" data-name="O Profeta" data-voice="profeta" style="left:0;top:30px;width:195px"><img src="assets/img/profeta.jpg" alt="Galinha vestida de profeta"></figure>
+    <div style="position:absolute;left:200px;top:20px;width:250px">
+      <div style="position:relative">
+        <img src="assets/img/foto_locutor.jpg" alt="Foto do locutor, censurada" style="width:100%;filter:grayscale(1) contrast(1.1)">
+        <span class="stamp censor">Censurado</span>
+      </div>
+      <p class="txt" data-block="e3-foto" style="margin-top:8px;font-weight:400;font-size:18px">Na foto ao lado, o locutor [...]</p>
+      <p style="font:13.2px/1.3 var(--type);color:#5a5448;margin:4px 0 0;text-align:center">(o recorte do original termina aqui)</p>
+    </div>
+  </div>
+  <div class="folio">17</div>
+</section>
+
+<!-- 17 DIVISÓRIA 04 -->
+<section class="page divider" data-ed="4">
+  <span class="ed">Ecos da Paróquia</span>
+  <span class="no">Nº 04</span>
+  <span class="ttl">Proclamas do Carijó &middot; Os discípulos de Omar Galinha</span>
+  <button class="scanthumb" data-orig="4" aria-label="Ver o jornal original número 4"><span class="tape"></span><img src="assets/scans/ecos_04.jpg" alt=""></button>
+  <button class="small-btn" data-orig="4">Ver jornal original</button>
+  <div class="folio">18</div>
+</section>
+
+<!-- 18 ED04 A -->
+<section class="page" data-ed="4">
+  <div class="mast-wrap"><img class="mast" src="assets/img/m4.jpg" alt="Ecos da Paróquia — Informativo do Programa UGA da Rádio Intervalo"></div>
+  <h2 class="h-slab" style="font-size:24px;font-style:italic">Proclamas do Carijó</h2>
+  <div class="scene" style="height:270px">
+    <figure class="char photo a-flex" id="c-carijo" data-name="O Carijó" data-voice="carijo" style="left:160px;top:0;width:174px"><img src="assets/img/carijo.jpg" alt="Foto de um fisiculturista fazendo pose"></figure>
+  </div>
+  <p class="txt" data-block="e4-fas" style="font-family:var(--display);font-weight:400;font-size:18px;letter-spacing:.02em">Tem muita gente no Colégio Estadual querendo saber quem é o locutor Galinha. O serviço de informações secretas do programa UGA conseguiu obter os nomes das principais fãs do galináceo.São elas: Vanessa Cardoso e Priscila Bianca da EG-J .O penoso promete visitá-las em breve e manda cordiais e carinhosas saudações.</p>
+  <div class="folio">19</div>
+</section>
+
+<!-- 19 ED04 B -->
+<section class="page" data-ed="4">
+  <h3 class="h-it" style="font-size:21.6px">Recados abomináveis</h3>
+  <div class="cutout" style="--r:-1deg">
+    <p class="txt" data-block="e4-moleca" style="font-weight:400;font-size:17.4px">Galera do TA-A<br>Luís ,Lorena ,Karina, Janaína e Leandro P.<br>Vocês são D+. Adivinhem quem é????<br>A própria: Moleca</p>
+  </div>
+  <p class="txt" data-block="e4-abracos" style="font-style:italic;font-size:17.4px">Já o pessoal aqui da rádio só manda abraços para a Karina, Janaína, Lorena e também para nossa amiga Moleca. Os outros são todos machos e vão ter que se contentar com nossos votos de alta estima e elevada consideração.</p>
+  <div style="display:grid;grid-template-columns:1fr 150px;gap:8px;align-items:end">
+    <p class="txt u" data-block="e4-participe" style="font-style:italic;font-size:19.2px;line-height:1.25">Participe você também do jornal Ecos da Paróquia e do programa UGA da Rádio Intervalo . Pode mandar sugestões e o que mais você quiser!!!.</p>
+    <div class="scene" style="height:160px">
+      <figure class="char a-bob" id="c-galinha4" data-name="Galinha" data-voice="rafael" style="left:0;top:4px;width:150px"><img src="assets/img/galinha.jpg" alt="O locutor Galinha"></figure>
+      <figure class="char" id="c-moleca" data-name="Moleca" data-voice="moleca" style="left:-2000px;top:0;width:1px" aria-hidden="true"></figure>
+    </div>
+  </div>
+  <div class="folio">20</div>
+</section>
+
+<!-- 20 ED04 C -->
+<section class="page" data-ed="4">
+  <h3 class="h-imp" style="font-size:26.4px">Os discípulos de Omar Galinha</h3>
+  <p class="txt" data-block="e4-omar1">Minha amiga, você anda cansada, triste e sem esperança?? Preocupada com o futuro??</p>
+  <div style="display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:center">
+    <div class="scene" style="height:200px">
+      <figure class="char photo a-breathe" id="c-loira" data-name="A cartomante" data-voice="loira" data-jaw="30,60,72,78" style="left:0;top:0;width:150px"><img src="assets/img/loira.jpg" alt="Foto de uma mulher loira sorrindo"></figure>
+    </div>
+    <p class="txt" data-block="e4-omar2">Problemas com amor ,dinheiro ou família?? A solução está nos discípulos de Omar Galinha. Este grupo dedicado às ciências esotéricas está pronto a ajudar você nas questões de sua vida!!!!!!</p>
+  </div>
+  <p class="h-it" style="font-size:18px">Depoimentos verdadeiros:</p>
+  <div style="display:grid;grid-template-columns:1fr 124px;gap:12px;align-items:center">
+    <div class="stack">
+      <p class="txt" data-block="e4-d1">``Era um verdadeiro amigo, sabia tudo de mim” <span style="font:400 14.4px 'Times New Roman',serif">(GERBÁSIA L. M. LIGHTS)</span></p>
+      <p class="txt" data-block="e4-d2">``Eu tinha um olho de vidro, mas depois que consultei o instituto Omar Galinha consegui mais um!!!!!! <span style="font:400 14.4px 'Times New Roman',serif">(GENOVEVO D. M.)</span></p>
+    </div>
+    <div class="scene" style="height:130px">
+      <figure class="char photo a-breathe" id="c-velho2" data-name="Genovevo" data-voice="velho" data-jaw="24,62,86,90" style="left:0;top:0;width:124px"><img src="assets/img/velho2.jpg" alt="Foto de um senhor idoso"></figure>
+    </div>
+  </div>
+  <div class="folio">21</div>
+</section>
+
+<!-- 21 ED04 D -->
+<section class="page" data-ed="4">
+  <div style="display:grid;grid-template-columns:130px 1fr;gap:14px;align-items:center;margin-top:10px">
+    <div class="scene" style="height:134px">
+      <figure class="char photo a-breathe" id="c-rosto" data-name="Atenogilda" data-voice="rosto" data-jaw="40,66,96,88" style="left:0;top:0;width:130px"><img src="assets/img/rosto.jpg" alt="Foto de um rosto de boca aberta"></figure>
+    </div>
+    <p class="txt" data-block="e4-d3" style="font-size:16.8px">``Eu tinha frieiras nos pés que exalavam odores, mas com a recomendação do talco Omar Galinha isso virou coisa do passado” <span style="font:400 14.4px 'Times New Roman',serif">(ATENOGILDA X. F.)</span></p>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 150px;gap:14px;align-items:center">
+    <p class="txt" data-block="e4-d4" style="font-size:16.8px">``Não tomo mais nenhuma decisão em meu escritório sem consultar os discípulos de Omar Galinha” <span style="font:400 14.4px 'Times New Roman',serif">(GODOFREDO L. M.)</span></p>
+    <div class="scene" style="height:150px">
+      <figure class="char photo a-breathe" id="c-pirata" data-name="Godofredo" data-voice="pirata" data-jaw="34,51,68,66" style="left:0;top:0;width:150px"><img src="assets/img/pirata.jpg" alt="Foto de um homem de chapéu de pirata sorrindo"></figure>
+    </div>
+  </div>
+  <p class="txt" data-block="e4-escreva" style="font-family:var(--display);font-weight:400;font-size:20.4px;letter-spacing:.02em;margin-top:8px">Escreva você também para este renomado instituto. A urna está na lanchonete.</p>
+  <div class="scene" style="height:170px;margin-top:auto">
+    <figure class="char a-sway" id="c-profeta4" data-name="Omar Galinha" data-voice="profeta" style="left:165px;top:0;width:165px"><img src="assets/img/profeta.jpg" alt="Galinha vestida de profeta"></figure>
+  </div>
+  <div class="folio">22</div>
+</section>
+
+<!-- 22 ED04 E -->
+<section class="page" data-ed="4">
+  <h3 class="h-it" style="font-size:20.4px;font-style:italic">Grandes vultos da Rádio Intervalo</h3>
+  <div style="display:grid;grid-template-columns:1fr 170px;gap:12px;align-items:center">
+    <p class="txt" data-block="e4-cabelo" style="font-size:17.4px">1- Cabelo: é um exemplo do locutor que não serve para nada .Sua alergria é encher o saco dos locutores do programa UGA</p>
+    <div class="scene" style="height:230px">
+      <figure class="char a-pedal" id="c-cabelo" data-name="Cabelo" data-voice="cabelo" style="left:0;top:0;width:170px"><img src="assets/img/cabelo.jpg" alt="Desenho do Cabelo, de rabo de cavalo, andando de bicicleta"></figure>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:200px 1fr;gap:12px;align-items:center">
+    <div class="scene" style="height:292px">
+      <figure class="char a-wave" id="c-ieda" data-name="Ieda" data-voice="ieda" style="left:0;top:0;width:210px"><img src="assets/img/ieda.jpg" alt="Desenho da Ieda sentada num banquinho acenando"></figure>
+    </div>
+    <p class="txt" data-block="e4-ieda" style="font-size:17.4px">2- Ieda- secretária prestativa mas apresenta traços psicóticos e assassinos, mas no fundo é gente boa!!!</p>
+  </div>
+  <div class="folio">23</div>
+</section>
+
+<!-- 23 CONTRACAPA -->
+<section class="page cover" data-ed="0" style="justify-content:center;gap:16px">
+  <p class="kicker">Rádio Intervalo &middot; Programa UGA</p>
+  <div class="scene" style="width:440px;height:300px">
+    <figure class="char a-hop" id="c-back-elvis" data-name="Elvis" data-voice="elvis" style="left:40px;top:120px;width:100px"><img src="assets/img/elvis.jpg" alt="Elvis"></figure>
+    <figure class="char a-bob" id="c-back-galinha" data-name="Galinha" data-voice="rafael" style="left:150px;top:40px;width:150px"><img src="assets/img/galinha.jpg" alt="Galinha"></figure>
+    <figure class="char a-pedal" id="c-back-cabelo" data-name="Cabelo" data-voice="cabelo" style="left:300px;top:90px;width:140px"><img src="assets/img/cabelo.jpg" alt="Cabelo"></figure>
+  </div>
+  <p class="txt" data-block="back-part" style="font-size:19.2px;font-style:italic">Participe você também do jornal Ecos da Paróquia e do programa UGA da Rádio Intervalo . Pode mandar sugestões e o que mais você quiser!!!.</p>
+  <span class="stamp" style="font-size:36px">Fim</span>
+  <button class="small-btn" data-go="0">Voltar à capa</button>
+</section>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+const PAGE_W=500, PAGE_H=707;
+const $=s=>document.querySelector(s);
+const pages=[...document.querySelectorAll('#pages > .page')];
+const book=$('#book'), clip=$('#clip'), scaler=$('#scaler'), viewport=$('#viewport');
+
+/* granulação do papel gerada em canvas */
+(function(){
+  const c=document.createElement('canvas');c.width=c.height=160;const x=c.getContext('2d');const d=x.createImageData(160,160);
+  for(let i=0;i<d.data.length;i+=4){const v=Math.random()*255|0;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=Math.random()<.5?10:0}
+  x.putImageData(d,0,0);document.documentElement.style.setProperty('--grain',`url(${c.toDataURL()})`);
+})();
+
+/* mandíbulas estilo recorte (jaw) */
+document.querySelectorAll('.char[data-jaw]').forEach(fig=>{
+  const [L,T,R,B]=fig.dataset.jaw.split(',').map(Number);const W=R-L,H=B-T;const src=fig.querySelector('img').getAttribute('src');
+  const mouth=document.createElement('div');mouth.className='mouth';
+  Object.assign(mouth.style,{left:(L+W*.18)+'%',width:(W*.64)+'%',top:T+'%',height:(H*.22)+'%'});
+  const jaw=document.createElement('div');jaw.className='jaw';
+  Object.assign(jaw.style,{left:L+'%',top:T+'%',width:W+'%',height:H+'%',backgroundImage:`url("${src}")`,
+    backgroundSize:`${100/W*100}% ${100/H*100}%`,backgroundPosition:`${L/(100-W)*100}% ${T/(100-H)*100}%`});
+  jaw.style.setProperty('--drop',Math.round(Math.max(10,24-H/3))+'%');
+  fig.append(mouth,jaw);
+});
+/* marca que o personagem fala */
+document.querySelectorAll('.char').forEach(f=>{
+  if(f.getAttribute('aria-hidden')==='true')return;
+  f.tabIndex=0;f.setAttribute('role','button');f.setAttribute('aria-label',(f.dataset.name||'Personagem')+': ouvir');
+  const h=document.createElement('span');h.className='hint';h.textContent='♪';f.append(h);
+});
+
+/* ---------- roteiro: quem fala qual texto original ---------- */
+const S={
+  0:[['c-cover-elvis','cover-hora']],
+  3:[['c-carlos','e1-intro'],['c-elvis','e1-1'],['c-carlos','e1-2']],
+  4:[['c-rafaelpaulo','e1-3','rafael'],['c-rafaelpaulo','e1-45','paulo']],
+  5:[['c-andersonandre','e1-6','pila'],['c-guara','e1-7']],
+  6:[['c-carta','e1-clovis','clovis'],['c-galinha1','e1-resp']],
+  8:[['c-velho','e2-banner'],['c-velho','e2-intro']],
+  9:[['c-capitao','e2-aviso']],
+  10:[['c-sorriso','e2-concurso'],['c-sorriso','e2-regul'],['c-sorriso','e2-prog']],
+  11:[['c-chapeu','e2-gremio'],['c-brigoes','e2-b1',null,true],['c-palito2','e2-b2',null,true]],
+  13:[['c-dolle','e3-dolle'],['c-elvis3','e3-elvis']],
+  14:[['c-leitor','e3-assedio'],['c-leitor','e3-pila','pila'],['c-leitor','e3-galinha','rafael'],['c-profeta','e3-urna']],
+  15:[['c-nostradamus','e3-bilhete','nostradamus'],['c-nostradamus','e3-guerra'],['c-nostradamus','e3-fim']],
+  16:[['c-profeta2','e3-obs','rafael'],['c-profeta2','e3-foto','rafael']],
+  18:[['c-carijo','e4-fas']],
+  19:[['c-moleca','e4-moleca'],['c-galinha4','e4-abracos'],['c-galinha4','e4-participe']],
+  20:[['c-loira','e4-omar1'],['c-loira','e4-omar2'],['c-velho2','e4-d1','gerbasia'],['c-velho2','e4-d2']],
+  21:[['c-rosto','e4-d3'],['c-pirata','e4-d4'],['c-profeta4','e4-escreva']],
+  22:[['c-cabelo','e4-cabelo'],['c-ieda','e4-ieda']],
+  23:[['c-back-galinha','back-part']],
+};
+/* vozes: tom e velocidade de cada personagem */
+const V={elvis:{p:1.9,r:1.12},carlos:{p:1.0,r:1.0},rafael:{p:1.3,r:1.08},paulo:{p:.75,r:.95},anderson:{p:.8,r:.95},pila:{p:1.05,r:1.12},
+  guara:{p:.55,r:1.15},clovis:{p:.7,r:.9},velho:{p:.5,r:.85},capitao:{p:.6,r:.95},sorriso:{p:1.2,r:1.05},chapeu:{p:.9,r:1},
+  brigao:{p:.65,r:1.1},palito:{p:1.5,r:1.1},palito2:{p:1.6,r:1.15},dolle:{p:1,r:1},leitor:{p:1.1,r:1},profeta:{p:.8,r:.82},
+  nostradamus:{p:.6,r:.85},carijo:{p:.5,r:.9},moleca:{p:1.7,r:1.1},loira:{p:1.5,r:.95},gerbasia:{p:1.4,r:.9},rosto:{p:1.35,r:1},
+  pirata:{p:.9,r:1.05},cabelo:{p:1.2,r:1.2},ieda:{p:1.45,r:1}};
+const NAMES={rafael:'Galinha',paulo:'Paulo',pila:'André Pila',clovis:'Clóvis (carta)',gerbasia:'Gerbásia',nostradamus:'Nostradamus'};
+
+/* ---------- montagem das folhas ---------- */
+let single=false, leaves=[], n=0, busy=false;
+function isSingle(){return window.innerWidth<820 || window.innerWidth/window.innerHeight<1.05}
+function build(){
+  single=isSingle();
+  clip.innerHTML='';leaves=[];
+  book.classList.toggle('single',single);
+  const mk=(pg,cls)=>{const f=document.createElement('div');f.className='face '+cls;if(pg)f.append(pg);else{const b=document.createElement('div');b.className='blank';f.append(b)}return f};
+  if(single){
+    pages.forEach(pg=>{const l=document.createElement('div');l.className='leaf';l.append(mk(pg,'front'),mk(null,'back'));leaves.push(l)});
+  }else{
+    for(let i=0;i<pages.length;i+=2){const l=document.createElement('div');l.className='leaf';l.append(mk(pages[i],'front'),mk(pages[i+1],'back'));leaves.push(l)}
+  }
+  leaves.forEach(l=>clip.append(l));
+  addHotzones();
+}
+function addHotzones(){
+  pages.forEach(pg=>pg.querySelectorAll('.hotzone').forEach(h=>h.remove()));
+  pages.forEach((pg,i)=>{
+    const side=single?'r':(i%2===0?'r':'l');
+    if(single||i%2===0){if(i<pages.length-1)pg.append(zone('r',1))}
+    if(single){if(i>0)pg.append(zone('l',-1))}
+    else if(i%2===1)pg.append(zone('l',-1));
+  });
+  function zone(side,d){const b=document.createElement('button');b.className='hotzone '+side;b.setAttribute('aria-label',d>0?'Virar a página':'Voltar a página');b.tabIndex=-1;b.onclick=e=>{e.stopPropagation();turn(d)};return b}
+}
+function visible(){ if(single) return [n]; return [2*n-1,2*n].filter(i=>i>=0&&i<pages.length) }
+function pageToState(p){ return single? p : Math.ceil(p/2) }
+function layout(){
+  const L=leaves.length;
+  leaves.forEach((l,i)=>{
+    const f=i<n; l.classList.toggle('flipped',f);
+    l.style.zIndex = f ? i+1 : L-i;
+    if(single) l.style.visibility = (i<n-1)?'hidden':'visible';
+  });
+  if(!single){
+    const shift = n===0 ? -PAGE_W/2 : (n===L ? PAGE_W/2 : 0);
+    book.style.transform=`translateX(${shift}px)`;
+  } else book.style.transform='';
+  const vis=visible();
+  pages.forEach((p,i)=>p.classList.toggle('live',vis.includes(i)));
+  $('#prev').disabled=n===0; $('#next').disabled=n===L;
+  const nums=vis.map(i=>i+1);
+  $('#count').textContent = (vis.length===1&&vis[0]===0)?'capa':(vis[0]===pages.length-1&&vis.length===1?'contracapa':'p. '+nums.join('–')+' / '+pages.length);
+  try{localStorage.setItem('ecos-pos',String(vis[vis.length-1]))}catch(e){}
+}
+function fit(){
+  const W=viewport.clientWidth, H=viewport.clientHeight;
+  const bw=single?PAGE_W:PAGE_W*2;
+  const s=Math.min((W-8)/bw,(H-8)/PAGE_H, single?1.6:1.35);
+  scaler.style.transform=`scale(${s}) translate(${-bw/2}px,${-PAGE_H/2}px)`;
+}
+function turn(d){
+  const L=leaves.length; const t=n+d; if(t<0||t>L) return false;
+  stopScene();
+  const leaf = d>0 ? leaves[n] : leaves[n-1];
+  leaf.style.zIndex=L+5; leaf.classList.add('turning');
+  if(single&&d<0) leaves.forEach((l,i)=>{if(i>=t-1)l.style.visibility='visible'});
+  n=t; flipSound();
+  requestAnimationFrame(()=>{ leaf.classList.toggle('flipped',d>0); });
+  clearTimeout(turn.t); turn.t=setTimeout(()=>{leaf.classList.remove('turning');layout();onArrive()},900);
+  // atualiza o resto logo (menos a folha em movimento)
+  leaves.forEach((l,i)=>{ if(l!==leaf){ l.classList.toggle('flipped',i<n); l.style.zIndex=i<n?i+1:L-i } });
+  const vis=visible(); pages.forEach((p,i)=>p.classList.toggle('live',vis.includes(i)));
+  if(!single){const shift=n===0?-PAGE_W/2:(n===L?PAGE_W/2:0);book.style.transform=`translateX(${shift}px)`}
+  $('#prev').disabled=n===0; $('#next').disabled=n===L;
+  return true;
+}
+function goPage(p){
+  const t=Math.max(0,Math.min(leaves.length,pageToState(p))); if(Math.abs(t-n)===1){turn(t-n);return}
+  stopScene(); n=Math.max(0,Math.min(leaves.length,pageToState(p))); flipSound(); layout(); onArrive();
+}
+
+/* ---------- som de papel ---------- */
+let actx=null;
+function flipSound(){
+  if(!voiceOn) return;
+  try{
+    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    const len=actx.sampleRate*.35, buf=actx.createBuffer(1,len,actx.sampleRate), d=buf.getChannelData(0);
+    for(let i=0;i<len;i++){const t=i/len;d[i]=(Math.random()*2-1)*Math.pow(1-t,2)*(0.5+0.5*Math.sin(t*40))}
+    const src=actx.createBufferSource();src.buffer=buf;const f=actx.createBiquadFilter();f.type='bandpass';f.frequency.value=2200;f.Q.value=.6;
+    const g=actx.createGain();g.gain.value=.25;src.connect(f).connect(g).connect(actx.destination);src.start();
+  }catch(e){}
+}
+
+/* ---------- fala ---------- */
+let voiceOn=true, autoOn=true, filmOn=false, token=0, voices=[];
+const synth=window.speechSynthesis;
+function loadVoices(){ if(!synth) return; const all=synth.getVoices(); voices=all.filter(v=>/^pt[-_]BR/i.test(v.lang)); if(!voices.length) voices=all.filter(v=>/^pt/i.test(v.lang)); }
+if(synth){loadVoices(); synth.onvoiceschanged=loadVoices;}
+const voiceKeys=Object.keys(V);
+function sentences(t){
+  const parts=t.replace(/\s+/g,' ').trim().match(/[^.!?”]+(?:[.!?”]+|$)/g)||[t];
+  const out=[];let cur='';
+  for(const p of parts){ if((cur+p).length<150) cur+=p; else { if(cur) out.push(cur.trim()); cur=p } }
+  if(cur.trim()) out.push(cur.trim());
+  return out.filter(s=>s.replace(/[^\p{L}\p{N}]/gu,'').length>0);
+}
+function speakable(t){
+  return t.replace(/<[^>]+>/g,'').replace(/[ςΙΑΔΟΣΒΧΗ]{4,}/g,'…').replace(/C\.E\.P/g,'cê é pê').replace(/D\+/g,'demais')
+    .replace(/EG-J/g,'é gê jota').replace(/TA-A/g,'tê a á').replace(/UGA/g,'Uga').replace(/``|`|”|“|‘|’|'/g,'')
+    .replace(/!{2,}/g,'!').replace(/\?{2,}/g,'?').replace(/\(\?+\)/g,'').replace(/\[\.\.\.\]/g,'…').replace(/-(\d)-/g,'$1,')
+    .replace(/(\d{2}):(\d{2})-/g,'$1 e $2,').replace(/9: 00/g,'9 horas').toLowerCase();
+}
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+function say(text,key,tk){
+  return new Promise(res=>{
+    const base=Math.max(1600,text.length*52);
+    if(!voiceOn||!synth){ setTimeout(res,base); return }
+    try{
+      const u=new SpeechSynthesisUtterance(speakable(text)); u.lang='pt-BR';
+      const cfg=V[key]||{p:1,r:1}; u.pitch=Math.min(2,cfg.p); u.rate=cfg.r;
+      if(voices.length) u.voice=voices[Math.abs(voiceKeys.indexOf(key))%voices.length];
+      let done=false; const fin=()=>{if(!done){done=true;res()}};
+      u.onend=fin; u.onerror=fin; setTimeout(fin, base*2.2+4000);
+      synth.speak(u);
+    }catch(e){ setTimeout(res,base) }
+  });
+}
+function stopScene(){ token++; if(synth) synth.cancel(); document.querySelectorAll('.bubble').forEach(b=>b.remove());
+  document.querySelectorAll('.talking').forEach(e=>e.classList.remove('talking'));
+  document.querySelectorAll('.reading').forEach(e=>e.classList.remove('reading'));
+  document.body.classList.remove('playing'); $('#btn-play').setAttribute('aria-pressed','false'); }
+
+function placeBubble(page,fig,name){
+  const b=document.createElement('div'); b.className='bubble';
+  const pr=page.getBoundingClientRect(), fr=fig.getBoundingClientRect(); const k=pr.width/PAGE_W;
+  let fx=(fr.left-pr.left)/k, fy=(fr.top-pr.top)/k, fw=fr.width/k, fh=fr.height/k;
+  const hidden = fw<5; // personagem invisível (carta, assinatura): balão no rodapé
+  b.innerHTML=`<span class="who"></span><span class="t"></span><span class="caret"></span>`;
+  b.querySelector('.who').textContent=name;
+  page.append(b);
+  const bw=250, bh=b.offsetHeight||90;
+  let cx = hidden? PAGE_W/2 : fx+fw/2;
+  let left=Math.max(12,Math.min(PAGE_W-bw-12,cx-bw/2));
+  b.style.left=left+'px';
+  b.style.setProperty('--tail',Math.max(22,Math.min(bw-22,cx-left))+'px');
+  b._pos={fx,fy,fw,fh,hidden};
+  return b;
+}
+function positionV(b){
+  const {fy,fh,hidden}=b._pos; const bh=b.offsetHeight;
+  if(hidden){ b.style.top=(PAGE_H-bh-40)+'px'; b.classList.add('up'); b.style.setProperty('--tail','-100px'); return }
+  const above=fy-bh-22;
+  if(above>8){ b.style.top=above+'px'; b.className='bubble up' }
+  else { b.style.top=Math.min(PAGE_H-bh-12,fy+Math.min(fh*.55,fh-10)+22)+'px'; b.className='bubble down' }
+}
+async function typeInto(b,text,tk){
+  const t=b.querySelector('.t'); t.textContent='';
+  for(let i=0;i<text.length;i+=2){ if(tk!==token) return; t.textContent=text.slice(0,i+2); if(i%12===0) positionV(b); await wait(18) }
+  positionV(b); const c=b.querySelector('.caret'); if(c) c.remove();
+}
+async function playLine(line,tk){
+  const [cid,bid,vk,noBubble]=line;
+  const fig=document.getElementById(cid); const blk=document.querySelector(`[data-block="${bid}"]`);
+  if(!fig||!blk) return;
+  const page=fig.closest('.page'); const key=vk||fig.dataset.voice; const name=NAMES[vk]||fig.dataset.name||'';
+  const text=blk.innerText.replace(/\s+/g,' ').trim();
+  blk.classList.add('reading'); fig.classList.add('talking');
+  if(noBubble){ await say(text,key,tk) }
+  else{
+    for(const s of sentences(text)){
+      if(tk!==token) break;
+      const b=placeBubble(page,fig,name);
+      const typing=typeInto(b,s,tk); const speaking=say(s,key,tk);
+      await Promise.all([typing,speaking]); if(tk!==token){b.remove();break}
+      await wait(voiceOn?250:500); b.remove();
+    }
+  }
+  fig.classList.remove('talking'); blk.classList.remove('reading');
+}
+async function playScene(which){
+  stopScene(); const tk=token;
+  document.body.classList.add('playing'); $('#btn-play').setAttribute('aria-pressed','true');
+  const vis=visible(); let lines=[];
+  if(which) lines=which; else vis.forEach(i=>{ if(S[i]) lines=lines.concat(S[i]) });
+  for(const l of lines){ if(tk!==token) return; await playLine(l,tk); await wait(300) }
+  if(tk!==token) return;
+  document.body.classList.remove('playing'); $('#btn-play').setAttribute('aria-pressed','false');
+  if(filmOn && !which){ await wait(1200); if(tk===token && filmOn){ if(!turn(1)) setFilm(false) } }
+}
+function onArrive(){ if(autoOn||filmOn){ const vis=visible(); if(vis.some(i=>S[i])) setTimeout(()=>{ if(!document.body.classList.contains('playing')) playScene() },250);
+  else if(filmOn){ const tk=token; setTimeout(()=>{ if(tk===token&&filmOn) turn(1) },2500) } } }
+
+/* clique nos personagens */
+document.addEventListener('click',e=>{
+  const fig=e.target.closest('.char'); if(fig&&fig.closest('.page.live')){
+    const lines=[];Object.values(S).forEach(arr=>arr.forEach(l=>{if(l[0]===fig.id)lines.push(l)}));
+    // personagens da capa sem fala própria: movimento de "oi"
+    if(lines.length) playScene(lines); else { fig.classList.add('talking'); setTimeout(()=>fig.classList.remove('talking'),900) }
+    return;
+  }
+  const go=e.target.closest('[data-go]'); if(go){ unlockAudio(); goPage(+go.dataset.go); return }
+  const o=e.target.closest('[data-orig]'); if(o){ openOrig(+o.dataset.orig) }
+});
+document.addEventListener('keydown',e=>{
+  if(!$('#lightbox').hidden){ if(e.key==='Escape') closeOrig(); return }
+  if(e.key==='ArrowRight'||e.key==='PageDown'){turn(1);e.preventDefault()}
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){turn(-1);e.preventDefault()}
+  else if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('char')){e.target.click();e.preventDefault()}
+});
+/* arrastar */
+let sx=null,sy=0;
+viewport.addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY});
+viewport.addEventListener('pointerup',e=>{ if(sx===null)return; const dx=e.clientX-sx,dy=e.clientY-sy; sx=null; if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.3) turn(dx<0?1:-1) });
+
+/* barra */
+function unlockAudio(){ try{ if(synth&&!unlockAudio.done){ const u=new SpeechSynthesisUtterance(' '); u.volume=0; synth.speak(u); unlockAudio.done=true } }catch(e){} }
+$('#prev').onclick=()=>turn(-1);
+$('#next').onclick=()=>{unlockAudio();turn(1)};
+$('#btn-play').onclick=()=>{ unlockAudio(); if(document.body.classList.contains('playing')) stopScene(); else playScene() };
+const tog=(btn,v)=>btn.setAttribute('aria-pressed',String(v));
+$('#btn-voice').onclick=function(){ voiceOn=!voiceOn; tog(this,voiceOn); if(!voiceOn&&synth) synth.cancel(); save() };
+$('#btn-auto').onclick=function(){ autoOn=!autoOn; tog(this,autoOn); save() };
+function setFilm(v){ filmOn=v; tog($('#btn-film'),v); if(v){ unlockAudio(); if(!document.body.classList.contains('playing')) playScene() } }
+$('#btn-film').onclick=()=>setFilm(!filmOn);
+$('#btn-orig').onclick=()=>{ const vis=visible(); const ed=+pages[vis[vis.length-1]].dataset.ed||1; openOrig(ed) };
+function save(){ try{localStorage.setItem('ecos-prefs',JSON.stringify({voiceOn,autoOn}))}catch(e){} }
+try{ const p=JSON.parse(localStorage.getItem('ecos-prefs')||'null'); if(p){ voiceOn=!!p.voiceOn; autoOn=!!p.autoOn; tog($('#btn-voice'),voiceOn); tog($('#btn-auto'),autoOn) } }catch(e){}
+
+/* original */
+const ORIG={1:['assets/scans/ecos_01.jpg','Ecos da Paróquia nº 01'],2:['assets/scans/ecos_02.jpg','Ecos da Paróquia nº 02'],3:['assets/scans/ecos_03_a.jpg','Ecos da Paróquia nº 03'],4:['assets/scans/ecos_04.jpg','Ecos da Paróquia nº 04']};
+function openOrig(ed){ stopScene(); const [src,t]=ORIG[ed]||ORIG[1]; $('#lb-img').src=src; $('#lb-title').textContent=t+' (original escaneado)'; const lb=$('#lightbox'); lb.classList.remove('zoom'); lb.hidden=false; $('#lb-close').focus() }
+function closeOrig(){ $('#lightbox').hidden=true }
+$('#lb-close').onclick=closeOrig;
+$('#lb-img').onclick=()=>$('#lightbox').classList.toggle('zoom');
+
+/* início */
+build();
+let startPage=0; if(location.hash){ const m=location.hash.match(/p(\d+)/); if(m) startPage=Math.max(0,Math.min(pages.length-1,+m[1]-1)) }
+n=pageToState(startPage);
+fit(); layout();
+window.addEventListener('resize',()=>{ const s=isSingle(); if(s!==single){ const vis=visible(); const cur=vis[vis.length-1]; stopScene(); build(); n=pageToState(cur); layout() } fit() });
+})();
+</script>
+</body>
+</html>
