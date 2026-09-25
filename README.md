@@ -8,6 +8,7 @@ As quatro edições do jornal **Ecos da Paróquia**, informativo do Programa UGA
 - **Tocar cena** faz os personagens da página falarem. Clicar em um personagem toca só as falas dele.
 - **Modo filme** lê o livro inteiro sozinho, virando as páginas.
 - **Ver original** mostra o jornal escaneado da edição aberta.
+- Se alguma voz do aparelho não emitir som, o livro percebe, troca por outra que funcione e deixa de usar a voz muda. O seletor ao lado de **Vozes** permite escolher uma voz só ou reativar as vozes descartadas; **Testar voz** toca uma frase curta.
 
 ## Como abrir
 

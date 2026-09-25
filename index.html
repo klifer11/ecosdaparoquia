@@ -225,6 +225,9 @@ button{font:inherit;color:inherit}
 .bar button[aria-pressed="true"]{background:var(--ui);color:var(--desk);border-color:var(--ui)}
 .bar button.round{width:40px;height:40px;padding:0;justify-content:center;font-size:18px}
 .bar button:disabled{opacity:.3;cursor:default}
+.bar select{background:transparent;border:1.5px solid rgba(232,225,210,.35);color:var(--ui);border-radius:999px;padding:7px 10px;font:13px/1 var(--type);max-width:210px}
+.bar select option{background:var(--desk);color:var(--ui)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .bar .count{font:13px var(--type);color:var(--ui-dim);min-width:72px;text-align:center;font-variant-numeric:tabular-nums}
 .bar svg{width:15px;height:15px}
 .onair{display:inline-block;width:8px;height:8px;border-radius:50%;background:#555}
@@ -263,6 +266,9 @@ button{font:inherit;color:inherit}
     <button id="btn-play" aria-pressed="false" title="Tocar a cena desta página"><span class="onair"></span>Tocar cena</button>
     <button id="btn-voice" aria-pressed="true" title="Liga ou desliga as vozes">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M19 5.5a9 9 0 0 1 0 13"/></svg>Vozes</button>
+    <label class="vsel" id="vsel-wrap" hidden><span class="sr">Escolher voz</span>
+      <select id="vsel" aria-label="Escolher voz"></select></label>
+    <button id="btn-test" title="Toca uma frase curta para testar a voz">Testar voz</button>
     <button id="btn-auto" aria-pressed="true" title="Os personagens falam sozinhos quando a página abre">Narração automática</button>
     <button id="btn-film" aria-pressed="false" title="Lê o livro inteiro sozinho, virando as páginas">Modo filme</button>
     <button id="btn-orig" title="Ver o jornal original escaneado">Ver original</button>
@@ -816,11 +822,28 @@ function flipSound(){
 }
 
 /* ---------- fala ---------- */
-let voiceOn=true, autoOn=true, filmOn=false, token=0, voices=[];
+let voiceOn=true, autoOn=true, filmOn=false, token=0, voices=[], voiceMode='auto';
 const synth=window.speechSynthesis;
-function loadVoices(){ if(!synth) return; const all=synth.getVoices(); voices=all.filter(v=>/^pt[-_]BR/i.test(v.lang)); if(!voices.length) voices=all.filter(v=>/^pt/i.test(v.lang)); }
-if(synth){loadVoices(); synth.onvoiceschanged=loadVoices;}
+/* vozes que não emitem som neste aparelho (listadas mas não instaladas, erro de rede...) */
+let badVoices=new Set();
+try{ badVoices=new Set(JSON.parse(localStorage.getItem('ecos-bad-voices')||'[]')) }catch(e){}
+function markBad(v){ if(!v) return; badVoices.add(v.voiceURI||v.name); try{localStorage.setItem('ecos-bad-voices',JSON.stringify([...badVoices]))}catch(e){} fillVoiceSelect() }
+function loadVoices(){
+  if(!synth) return; const all=synth.getVoices();
+  let pt=all.filter(v=>/^pt[-_]BR/i.test(v.lang)); if(!pt.length) pt=all.filter(v=>/^pt/i.test(v.lang));
+  // vozes locais primeiro: são as mais confiáveis
+  voices=pt.sort((a,b)=>(b.localService?1:0)-(a.localService?1:0));
+  fillVoiceSelect();
+}
+const okVoices=()=>voices.filter(v=>!badVoices.has(v.voiceURI||v.name));
 const voiceKeys=Object.keys(V);
+function voiceFor(key){
+  const ok=okVoices(); if(!ok.length) return null;
+  if(voiceMode==='auto'){ const i=Math.max(0,voiceKeys.indexOf(key)); return ok[i%ok.length] }
+  if(voiceMode==='default') return null;
+  return ok.find(v=>(v.voiceURI||v.name)===voiceMode)||null;
+}
+if(synth){loadVoices(); if(synth.addEventListener) synth.addEventListener('voiceschanged',loadVoices); else synth.onvoiceschanged=loadVoices;}
 function sentences(t){
   const parts=t.replace(/\s+/g,' ').trim().match(/[^.!?”]+(?:[.!?”]+|$)/g)||[t];
   const out=[];let cur='';
@@ -835,21 +858,52 @@ function speakable(t){
     .replace(/(\d{2}):(\d{2})-/g,'$1 e $2,').replace(/9: 00/g,'9 horas').toLowerCase();
 }
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
-function say(text,key,tk){
+const liveUtts=new Set(); // guarda referência: o Chrome perde o "onend" se a fala for coletada da memória
+let lastCancel=0;
+/* fala uma vez; resolve 'ok', 'fail' (voz muda / erro) ou 'cancel' */
+function speakOnce(text,cfg,voice,tk){
   return new Promise(res=>{
-    const base=Math.max(1600,text.length*52);
-    if(!voiceOn||!synth){ setTimeout(res,base); return }
-    try{
-      const u=new SpeechSynthesisUtterance(speakable(text)); u.lang='pt-BR';
-      const cfg=V[key]||{p:1,r:1}; u.pitch=Math.min(2,cfg.p); u.rate=cfg.r;
-      if(voices.length) u.voice=voices[Math.abs(voiceKeys.indexOf(key))%voices.length];
-      let done=false; const fin=()=>{if(!done){done=true;res()}};
-      u.onend=fin; u.onerror=fin; setTimeout(fin, base*2.2+4000);
-      synth.speak(u);
-    }catch(e){ setTimeout(res,base) }
+    const u=new SpeechSynthesisUtterance(text);
+    if(voice){ u.voice=voice; u.lang=voice.lang } else u.lang='pt-BR';
+    // algumas vozes falham com tom/velocidade extremos
+    u.pitch=Math.max(.6,Math.min(1.6,cfg.p)); u.rate=Math.max(.8,Math.min(1.2,cfg.r));
+    let started=false, t0=0, done=false;
+    const fin=r=>{ if(done) return; done=true; liveUtts.delete(u); clearTimeout(t1); res(r) };
+    u.onstart=()=>{ started=true; t0=performance.now() };
+    u.onend=()=>{ const dur=performance.now()-t0; fin(tk!==token?'cancel':(!started&&text.length>15)||(started&&dur<120&&text.length>25)?'fail':'ok') };
+    u.onerror=e=>fin((e.error==='interrupted'||e.error==='canceled'||tk!==token)?'cancel':'fail');
+    // se nada começar em 4 s, a voz não funciona aqui
+    const t1=setTimeout(()=>{ if(!started) fin(tk!==token?'cancel':'fail') },4000);
+    setTimeout(()=>{ if(!done) fin('ok') }, Math.max(8000,text.length*140));
+    liveUtts.add(u);
+    if(synth.paused) synth.resume();
+    synth.speak(u);
   });
 }
-function stopScene(){ token++; if(synth) synth.cancel(); document.querySelectorAll('.bubble').forEach(b=>b.remove());
+async function say(text,key,tk){
+  const base=Math.max(1600,text.length*52);
+  if(!voiceOn||!synth){ await wait(base); return }
+  // o Chrome descarta uma fala enviada logo depois de "cancel"
+  const since=performance.now()-lastCancel; if(since<250) await wait(250-since);
+  // espera a fala anterior terminar, para não medir a fila como falha
+  for(let i=0;i<60&&synth.speaking&&tk===token;i++) await wait(250);
+  if(tk!==token) return;
+  const t=speakable(text), cfg=V[key]||{p:1,r:1};
+  try{
+    const v=voiceFor(key);
+    let r=await speakOnce(t,cfg,v,tk);
+    if(r==='fail'&&tk===token){
+      synth.cancel(); lastCancel=performance.now();
+      if(v) markBad(v);
+      await wait(250); if(tk!==token) return;
+      // tenta de novo com outra voz que funcione, ou a voz padrão do aparelho
+      const v2=voiceFor(key);
+      r=await speakOnce(t,cfg,v2,tk);
+      if(r==='fail'&&v2){ markBad(v2); synth.cancel(); lastCancel=performance.now(); await wait(250); if(tk===token) await speakOnce(t,cfg,null,tk) }
+    }
+  }catch(e){ await wait(base) }
+}
+function stopScene(){ token++; if(synth){ synth.cancel(); lastCancel=performance.now() } document.querySelectorAll('.bubble').forEach(b=>b.remove());
   document.querySelectorAll('.talking').forEach(e=>e.classList.remove('talking'));
   document.querySelectorAll('.reading').forEach(e=>e.classList.remove('reading'));
   document.body.classList.remove('playing'); $('#btn-play').setAttribute('aria-pressed','false'); }
@@ -947,8 +1001,24 @@ $('#btn-auto').onclick=function(){ autoOn=!autoOn; tog(this,autoOn); save() };
 function setFilm(v){ filmOn=v; tog($('#btn-film'),v); if(v){ unlockAudio(); if(!document.body.classList.contains('playing')) playScene() } }
 $('#btn-film').onclick=()=>setFilm(!filmOn);
 $('#btn-orig').onclick=()=>{ const vis=visible(); const ed=+pages[vis[vis.length-1]].dataset.ed||1; openOrig(ed) };
-function save(){ try{localStorage.setItem('ecos-prefs',JSON.stringify({voiceOn,autoOn}))}catch(e){} }
-try{ const p=JSON.parse(localStorage.getItem('ecos-prefs')||'null'); if(p){ voiceOn=!!p.voiceOn; autoOn=!!p.autoOn; tog($('#btn-voice'),voiceOn); tog($('#btn-auto'),autoOn) } }catch(e){}
+function save(){ try{localStorage.setItem('ecos-prefs',JSON.stringify({voiceOn,autoOn,voiceMode}))}catch(e){} }
+function fillVoiceSelect(){
+  const sel=document.getElementById('vsel'); if(!sel) return;
+  const ok=okVoices(); document.getElementById('vsel-wrap').hidden=!voices.length;
+  const opts=[['auto',`Vozes variadas (${ok.length})`],['default','Voz padrão do aparelho']].concat(ok.map(v=>[v.voiceURI||v.name,v.name.replace(/\s*\(.*\)\s*/,'')+(v.localService?'':' · online')]));
+  if(badVoices.size) opts.push(['reset',`Reativar ${badVoices.size} voz(es) sem som`]);
+  sel.innerHTML=''; opts.forEach(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;sel.append(o)});
+  if(![...sel.options].some(o=>o.value===voiceMode)) voiceMode='auto';
+  sel.value=voiceMode;
+}
+document.getElementById('vsel').onchange=function(){
+  if(this.value==='reset'){ badVoices.clear(); try{localStorage.removeItem('ecos-bad-voices')}catch(e){} fillVoiceSelect(); return }
+  voiceMode=this.value; save();
+};
+$('#btn-test').onclick=async()=>{ stopScene(); const tk=token; if(!voiceOn){ voiceOn=true; tog($('#btn-voice'),true); save() }
+  const k=voiceMode==='auto'?voiceKeys[Math.floor(Math.random()*voiceKeys.length)]:'carlos';
+  await say('Todos os sábados, a partir das 9 horas!',k,tk) };
+try{ const p=JSON.parse(localStorage.getItem('ecos-prefs')||'null'); if(p){ voiceOn=!!p.voiceOn; autoOn=!!p.autoOn; if(p.voiceMode) voiceMode=p.voiceMode; tog($('#btn-voice'),voiceOn); tog($('#btn-auto'),autoOn) } }catch(e){}
 
 /* original */
 const ORIG={1:['assets/scans/ecos_01.jpg','Ecos da Paróquia nº 01'],2:['assets/scans/ecos_02.jpg','Ecos da Paróquia nº 02'],3:['assets/scans/ecos_03_a.jpg','Ecos da Paróquia nº 03'],4:['assets/scans/ecos_04.jpg','Ecos da Paróquia nº 04']};
@@ -962,6 +1032,7 @@ build();
 let startPage=0; if(location.hash){ const m=location.hash.match(/p(\d+)/); if(m) startPage=Math.max(0,Math.min(pages.length-1,+m[1]-1)) }
 n=pageToState(startPage);
 fit(); layout();
+fillVoiceSelect();
 window.addEventListener('resize',()=>{ const s=isSingle(); if(s!==single){ const vis=visible(); const cur=vis[vis.length-1]; stopScene(); build(); n=pageToState(cur); layout() } fit() });
 })();
 </script>
